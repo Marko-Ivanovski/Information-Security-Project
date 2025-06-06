@@ -1,13 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard</title>
-</head>
-<body>
-    {% block content %}
-  <h1>Your Files</h1>
-  <p><a href="{{ url_for('files.upload') }}">+ Add File</a></p>
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+  <h1>Files</h1>
+
+  {% if g.user %}
+    <p><a href="{{ url_for('files.upload') }}">+ Add File</a></p>
+  {% endif %}
 
   {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -19,33 +18,63 @@
     {% endif %}
   {% endwith %}
 
-  <table>
+  <table border="1" cellpadding="5" cellspacing="0">
     <thead>
       <tr>
         <th>Filename</th>
+        <th>Type</th>
         <th>Uploaded At</th>
         <th>Actions</th>
       </tr>
     </thead>
     <tbody>
-      {% for f in files %}
+      {# Private files (only shown to owner) #}
+      {% for f in private_files %}
         <tr>
           <td>{{ f.original_filename }}</td>
+          <td>Private</td>
           <td>{{ f.upload_timestamp }}</td>
           <td>
             <a href="{{ url_for('files.download', file_id=f.id) }}">Download</a>
-            <form action="{{ url_for('files.delete', file_id=f.id) }}"
-                  method="post" style="display:inline">
-              <button type="submit">Delete</button>
-            </form>
+            {% if g.user and f.owner_id == g.user.id %}
+              <form
+                action="{{ url_for('files.delete', file_id=f.id) }}"
+                method="post"
+                style="display:inline"
+              >
+                <button type="submit">Delete</button>
+              </form>
+            {% endif %}
           </td>
         </tr>
       {% endfor %}
-      {% if files|length == 0 %}
-        <tr><td colspan="3">You have no files yet.</td></tr>
+
+      {# Public files #}
+      {% for f in public_files %}
+        <tr>
+          <td>{{ f.original_filename }}</td>
+          <td>Public</td>
+          <td>{{ f.upload_timestamp }}</td>
+          <td>
+            <a href="{{ url_for('files.download', file_id=f.id) }}">Download</a>
+            {% if g.user and f.owner_id == g.user.id %}
+              <form
+                action="{{ url_for('files.delete', file_id=f.id) }}"
+                method="post"
+                style="display:inline"
+              >
+                <button type="submit">Delete</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+
+      {% if private_files|length + public_files|length == 0 %}
+        <tr>
+          <td colspan="4">No files to display.</td>
+        </tr>
       {% endif %}
     </tbody>
   </table>
 {% endblock %}
-</body>
-</html>

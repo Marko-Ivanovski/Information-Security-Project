@@ -2,9 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>{% block title %}Secure File Share{% endblock %}</title>
 </head>
 <body>
+  <nav>
+    <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+    {% if g.user %}
+      <a href="{{ url_for('auth.logout') }}">Logout</a>
+    {% else %}
+      <a href="{{ url_for('auth.login') }}">Login</a>
+    {% endif %}
+  </nav>
 
+  <main>
+    {% block content %}{% endblock %}
+  </main>
 </body>
 </html>

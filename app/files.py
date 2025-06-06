@@ -35,12 +35,15 @@ def upload():
         data = f.read()
         sha256 = hashlib.sha256(data).hexdigest()
         f.stream.seek(0)
+        is_public = (request.form.get('visibility') == 'public')
 
         # Create metadata (this sets stored_filename = uuid4().hex)
         meta = FileMetadata(
             owner_id=g.user.id,
             original_filename=original,
-            sha256_hash=sha256
+            sha256_hash=sha256,
+            description=None,
+            is_public=is_public
         )
         db.session.add(meta)
         db.session.commit()
@@ -55,11 +58,23 @@ def upload():
     return render_template('upload.html')
 
 @files.route('/download/<int:file_id>')
-@login_required
 def download(file_id):
     meta = FileMetadata.query.get_or_404(file_id)
+
+    if meta.is_public:
+        return send_from_directory(
+            current_app.config['UPLOAD_FOLDER'],
+            meta.stored_filename,
+            as_attachment=True,
+            download_name=meta.original_filename
+        )
+
+    if not g.user:
+        return redirect(url_for('auth.login'))
+
     if meta.owner_id != g.user.id:
         abort(403)
+
     return send_from_directory(
         current_app.config['UPLOAD_FOLDER'],
         meta.stored_filename,

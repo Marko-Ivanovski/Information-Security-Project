@@ -2,12 +2,8 @@
 
 from datetime import datetime
 from uuid import uuid4
-
-from flask_sqlalchemy import SQLAlchemy
-
-# db = SQLAlchemy()
 from app import db
-
+from flask_sqlalchemy import SQLAlchemy
 
 class User(db.Model):
     __tablename__ = "users"
@@ -34,19 +30,21 @@ class FileMetadata(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     original_filename = db.Column(db.String(256), nullable=False)
     stored_filename = db.Column(db.String(64), unique=True, nullable=False)
-    upload_timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    upload_timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now)
     sha256_hash = db.Column(db.String(64), nullable=False)
     description = db.Column(db.Text, nullable=True)
+    is_public = db.Column(db.Boolean, default=True, nullable=False)
 
     # Relationship back to User
     owner = db.relationship("User", back_populates="files")
 
-    def __init__(self, owner_id, original_filename, sha256_hash, description=None):
+    def __init__(self, owner_id, original_filename, sha256_hash, description=None, is_public=True):
         self.owner_id = owner_id
         self.original_filename = original_filename
         self.stored_filename = uuid4().hex
         self.sha256_hash = sha256_hash
         self.description = description
+        self.is_public = is_public
 
     def __repr__(self):
         return (
