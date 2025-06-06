@@ -7,7 +7,6 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    # If already logged in, go to dashboard; otherwise send to /login
     if g.user:
         return redirect(url_for('main.dashboard'))
     return redirect(url_for('auth.login'))
@@ -15,4 +14,11 @@ def index():
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', username=g.user.username)
+    username = g.user.username
+    files = g.user.files
+
+    return render_template(
+        'dashboard.html',
+        username=username,
+        files=files
+    )
