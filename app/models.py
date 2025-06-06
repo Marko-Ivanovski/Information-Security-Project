@@ -14,9 +14,11 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    public_value = db.Column(db.Text, nullable=False)
-    # (Optionally) if you want to store an encryption key per user:
+    password_hash = db.Column(db.String(256), nullable=False) # Delete when implementing ZKP
+
+    # Uncomment below when implementing ZKP
     # encryption_key = db.Column(db.String(44), nullable=True)
+    # public_value = db.Column(db.Text, nullable=False)
 
     # Relationship: one user → many files
     files = db.relationship("FileMetadata", back_populates="owner", cascade="all, delete-orphan")
