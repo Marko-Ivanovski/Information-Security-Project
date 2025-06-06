@@ -3,4 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.13 (Informaciska_Bezbednost)" />
   </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.13 (Information-Security-Project)" project-jdk-type="Python SDK" />
 </project>
